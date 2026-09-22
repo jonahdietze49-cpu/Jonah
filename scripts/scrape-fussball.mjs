@@ -105,6 +105,45 @@ function logDiagnostics($) {
   )
 }
 
+/** Sucht in einer Zeile nach einer reinen Uhrzeit (z.B. "18:30"). */
+function findTimeInText(text) {
+  const m = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/)
+  return m ? { hour: Number(m[1]), minute: Number(m[2]) } : null
+}
+
+/** Läuft rückwärts durch vorherige Geschwister-Elemente (und danach deren
+ * Elternebene) und sucht das nächstgelegene per chrono erkennbare Datum.
+ * Deckt das gängige Muster ab, bei dem eine "Spieltag"-Kopfzeile das Datum
+ * trägt und die einzelnen Spielzeilen darunter nur noch die Uhrzeit zeigen. */
+function findNearestDate($, startEl) {
+  let node = startEl
+  let hops = 0
+  while (node && hops < 80) {
+    const prev = node.prev
+    if (prev) {
+      const text = $(prev).text().trim()
+      if (text) {
+        const parsed = chrono.de.parse(
+          text.replace(LEADING_WEEKDAY, ''),
+          new Date(),
+          { forwardDate: true },
+        )
+        if (parsed.length > 0) {
+          const r = parsed.reduce((best, cur) =>
+            cur.text.length > best.text.length ? cur : best,
+          )
+          return r.start.date()
+        }
+      }
+      node = prev
+    } else {
+      node = node.parent
+    }
+    hops += 1
+  }
+  return null
+}
+
 function extractMatches(html) {
   const $ = cheerio.load(html)
   logDiagnostics($)
@@ -114,6 +153,8 @@ function extractMatches(html) {
   // Spiele heraus, an denen die eigene Mannschaft beteiligt ist.
   const seenIds = new Set()
   const found = []
+  let undated = 0
+  let diagnosticsLogged = 0
 
   $('a[href*="/spiel/"]').each((_, a) => {
     const href = $(a).attr('href') || ''
@@ -123,10 +164,37 @@ function extractMatches(html) {
     const row = $(a).closest('tr, li').get(0) ?? $(a).parent().get(0)
     const rowLine = row ? rowText($, row) : ''
     const cleanedLine = rowLine.replace(LEADING_WEEKDAY, '')
-    const parsed = chrono.de.parse(cleanedLine, new Date(), { forwardDate: true })
-    if (parsed.length === 0) return
-    const r = parsed.reduce((best, cur) => (cur.text.length > best.text.length ? cur : best))
-    const date = r.start.date()
+
+    let date = null
+    const parsed = chrono.de.parse(cleanedLine, new Date(), {
+      forwardDate: true,
+    })
+    if (parsed.length > 0) {
+      const r = parsed.reduce((best, cur) =>
+        cur.text.length > best.text.length ? cur : best,
+      )
+      date = r.start.date()
+    } else if (row) {
+      // Zeile hat kein eigenes Datum – oft steht nur die Uhrzeit dort und
+      // das Datum in einer vorherigen "Spieltag"-Kopfzeile.
+      const time = findTimeInText(rowLine)
+      const nearestDate = findNearestDate($, row)
+      if (nearestDate) {
+        date = nearestDate
+        if (time) date.setHours(time.hour, time.minute, 0, 0)
+      }
+    }
+
+    if (!date) {
+      undated += 1
+      if (diagnosticsLogged < 6) {
+        console.log(
+          `[Diagnose] Kein Datum für ${info.opponent} – Zeilentext: "${rowLine.slice(0, 200)}"`,
+        )
+        diagnosticsLogged += 1
+      }
+      return
+    }
 
     seenIds.add(info.matchId)
     found.push({
@@ -138,6 +206,9 @@ function extractMatches(html) {
     })
   })
 
+  if (undated > 0) {
+    console.log(`[Diagnose] ${undated} Spiel(e) ohne erkennbares Datum übersprungen.`)
+  }
   console.log(`[Spiel-Links, eigene Mannschaft] ${found.length} Spiel(e) erkannt.`)
   return found
 }
