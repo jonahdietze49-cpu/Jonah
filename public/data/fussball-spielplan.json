@@ -1,0 +1,72 @@
+[
+  {
+    "id": "2024-10-24T20:00-|-pokalspiel-herren-sv-09-hofheim",
+    "date": "2024-10-24T20:00:00.000Z",
+    "opponent": "| Pokalspiel Herren SV 09 Hofheim",
+    "home": false,
+    "competition": "Verbandsliga Mitte"
+  },
+  {
+    "id": "2026-01-10T12:15-sg-01-hoechst--:--zum-spiel",
+    "date": "2026-01-10T12:15:00.000Z",
+    "opponent": "SG 01 Hoechst  :  Zum Spiel",
+    "home": true,
+    "competition": "Verbandsliga Mitte"
+  },
+  {
+    "id": "2026-09-22T11:15-fc-eddersheim-ii--:--zum-spiel",
+    "date": "2026-09-22T11:15:00.000Z",
+    "opponent": "FC Eddersheim II  :  Zum Spiel",
+    "home": true,
+    "competition": "Verbandsliga Mitte"
+  },
+  {
+    "id": "2026-09-22T15:15-sg-oberliederbach--:--zum-spiel",
+    "date": "2026-09-22T15:15:00.000Z",
+    "opponent": "SG Oberliederbach  :  Zum Spiel",
+    "home": true,
+    "competition": "Verbandsliga Mitte"
+  },
+  {
+    "id": "2026-01-17T12:45-djk-zeilsheim--:--zum-spiel",
+    "date": "2026-01-17T12:45:00.000Z",
+    "opponent": "DJK Zeilsheim  :  Zum Spiel",
+    "home": true,
+    "competition": "Verbandsliga Mitte"
+  },
+  {
+    "id": "2026-09-04T20:00-türkischer-sv-wiesbaden--:--zum-spiel",
+    "date": "2026-09-04T20:00:00.000Z",
+    "opponent": "Türkischer SV Wiesbaden  :  Zum Spiel",
+    "home": true,
+    "competition": "Verbandsliga Mitte"
+  },
+  {
+    "id": "2024-10-02T20:00-|-meisterschaftsspiel-herren-sc-waldgirmes",
+    "date": "2024-10-02T20:00:00.000Z",
+    "opponent": "| Meisterschaftsspiel Herren SC Waldgirmes",
+    "home": false,
+    "competition": "Verbandsliga Mitte"
+  },
+  {
+    "id": "2025-02-20T20:00-|-freundschaftsspiel-herren-spvgg.-07-hochheim",
+    "date": "2025-02-20T20:00:00.000Z",
+    "opponent": "| Freundschaftsspiel Herren Spvgg. 07 Hochheim",
+    "home": false,
+    "competition": "Verbandsliga Mitte"
+  },
+  {
+    "id": "2026-07-09T20:00-fv-alemannia-nied--:--zum-spiel",
+    "date": "2026-07-09T20:00:00.000Z",
+    "opponent": "FV Alemannia Nied  :  Zum Spiel",
+    "home": true,
+    "competition": "Verbandsliga Mitte"
+  },
+  {
+    "id": "2026-08-23T14:30-tura-niederhöchstadt--:--zum-spiel",
+    "date": "2026-08-23T14:30:00.000Z",
+    "opponent": "TuRa Niederhöchstadt  :  Zum Spiel",
+    "home": true,
+    "competition": "Verbandsliga Mitte"
+  }
+]
