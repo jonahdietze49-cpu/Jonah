@@ -3,6 +3,7 @@ import { HashRouter, Route, Routes } from 'react-router-dom'
 import { AssistantWidget } from './components/AssistantWidget'
 import { NavShell } from './components/NavShell'
 import { RingingOverlay } from './components/RingingOverlay'
+import { GoogleAuthProvider } from './contexts/GoogleAuthContext'
 import { useAlarmScheduler } from './hooks/useAlarmScheduler'
 import { useNotificationScheduler } from './hooks/useNotificationScheduler'
 import { unlockAudio } from './lib/alarmSound'
@@ -42,7 +43,9 @@ function AppRoutes() {
 function App() {
   return (
     <HashRouter>
-      <AppRoutes />
+      <GoogleAuthProvider>
+        <AppRoutes />
+      </GoogleAuthProvider>
     </HashRouter>
   )
 }

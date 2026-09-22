@@ -1,7 +1,10 @@
 import {
+  AlertCircle,
   Bell,
   Download,
+  ExternalLink,
   Laptop,
+  Mail,
   Smartphone,
   Tablet,
   Trash2,
@@ -9,11 +12,13 @@ import {
 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Button, Card, Input, SectionTitle } from '../components/ui'
+import { useGoogleAuth } from '../contexts/GoogleAuthContext'
 import { useSettings } from '../hooks/useSettings'
 import { exportAllData, importAllData } from '../lib/storage'
 
 export default function Einstellungen() {
   const { settings, updateSettings } = useSettings()
+  const googleAuth = useGoogleAuth()
   const [notifStatus, setNotifStatus] = useState<NotificationPermission | 'unsupported'>(
     typeof Notification === 'undefined' ? 'unsupported' : Notification.permission,
   )
@@ -81,6 +86,93 @@ export default function Einstellungen() {
           onChange={(e) => updateSettings({ userName: e.target.value })}
           placeholder="z.B. Jonah"
         />
+      </Card>
+
+      <Card className="p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <Mail size={18} className="text-[var(--accent)]" />
+          <h2 className="font-semibold text-base m-0">Google-Konto</h2>
+        </div>
+        <p className="text-sm text-[var(--text-muted)]">
+          Verbindet Gmail (ungelesene Mails) und Google Kalender (anstehende
+          Termine) mit deiner Übersicht. Läuft komplett im Browser, ohne
+          eigenen Server – dafür braucht Luma eine eigene, kostenlose
+          Google-Client-ID, die nur du erstellen kannst.
+        </p>
+
+        <details className="text-sm">
+          <summary className="cursor-pointer font-medium text-[var(--accent)]">
+            Anleitung: Client-ID in 5 Minuten erstellen
+          </summary>
+          <ol className="list-decimal list-inside space-y-1.5 mt-2 text-[var(--text-muted)]">
+            <li>
+              <a
+                href="https://console.cloud.google.com/projectcreate"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[var(--accent)] inline-flex items-center gap-1"
+              >
+                Google Cloud Console <ExternalLink size={12} />
+              </a>{' '}
+              öffnen und ein neues Projekt erstellen (z. B. „Luma").
+            </li>
+            <li>
+              Im Menü zu „APIs &amp; Dienste" → „OAuth-Zustimmungsbildschirm":
+              Nutzertyp „Extern" wählen, App-Namen und deine E-Mail eintragen.
+              Unter „Testnutzer" deine eigene Google-Adresse hinzufügen – die
+              App bleibt im Status „Testing", das reicht für die private
+              Nutzung ohne Google-Prüfung völlig aus.
+            </li>
+            <li>
+              Zu „Anmeldedaten" → „Anmeldedaten erstellen" → „OAuth-Client-ID"
+              → Anwendungstyp „Webanwendung".
+            </li>
+            <li>
+              Unter „Autorisierte JavaScript-Quellen" hinzufügen:{' '}
+              <code className="px-1 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text)]">
+                https://jonahdietze49-cpu.github.io
+              </code>
+            </li>
+            <li>Client-ID kopieren und unten einfügen.</li>
+          </ol>
+        </details>
+
+        <div>
+          <label className="text-xs font-medium text-[var(--text-muted)] block mb-1">
+            Google Client-ID
+          </label>
+          <Input
+            value={settings.googleClientId}
+            onChange={(e) => updateSettings({ googleClientId: e.target.value })}
+            placeholder="xxxxxxxxxxxx.apps.googleusercontent.com"
+          />
+        </div>
+
+        {googleAuth.error && (
+          <div className="flex gap-2 text-sm text-[var(--danger)] bg-[var(--danger)]/10 rounded-xl p-3">
+            <AlertCircle size={18} className="shrink-0" />
+            {googleAuth.error}
+          </div>
+        )}
+
+        {googleAuth.connected ? (
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-[var(--success)] font-medium">
+              Verbunden
+            </span>
+            <Button variant="secondary" onClick={googleAuth.disconnect}>
+              Trennen
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="primary"
+            onClick={googleAuth.connect}
+            disabled={googleAuth.connecting}
+          >
+            {googleAuth.connecting ? 'Verbinde…' : 'Mit Google verbinden'}
+          </Button>
+        )}
       </Card>
 
       <Card className="p-4 space-y-3">

@@ -1,0 +1,38 @@
+name: Fußball-Spielplan aktualisieren
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/personal-productivity-app-24p9ha
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/scrape-fussball.mjs
+      - name: Änderungen committen (falls vorhanden)
+        run: |
+          if [ ! -f public/data/fussball-spielplan.json ]; then
+            echo "Keine Datei erzeugt (0 Spiele erkannt) – nichts zu committen."
+            exit 0
+          fi
+          git add public/data/fussball-spielplan.json
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen am Spielplan."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "Spielplan aktualisiert (automatisch)"
+            git push
+          fi

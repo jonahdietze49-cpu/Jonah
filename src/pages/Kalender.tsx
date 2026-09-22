@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { FussballCard } from '../components/FussballCard'
 import { VoiceQuickAdd } from '../components/VoiceQuickAdd'
 import { Button, Card, EmptyState, Input, SectionTitle } from '../components/ui'
 import { useEvents } from '../hooks/useEvents'
@@ -216,6 +217,8 @@ export default function Kalender() {
           </ul>
         )}
       </Card>
+
+      <FussballCard />
     </div>
   )
 }

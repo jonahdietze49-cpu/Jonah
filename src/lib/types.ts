@@ -7,7 +7,7 @@ export interface CalendarEvent {
   end?: string
   location?: string
   notes?: string
-  createdVia: 'manual' | 'voice'
+  createdVia: 'manual' | 'voice' | 'fussball'
   createdAt: string
 }
 
@@ -60,4 +60,17 @@ export interface AppSettings {
   userName: string
   notificationsEnabled: boolean
   reminderLeadMinutes: number
+  /** Eigene Google OAuth Client-ID (aus der Google Cloud Console) */
+  googleClientId: string
+}
+
+export interface FussballMatch {
+  /** stabile ID zum Deduplizieren, z.B. ISO-Datum + Gegner */
+  id: string
+  /** ISO datetime string */
+  date: string
+  opponent: string
+  home: boolean
+  competition?: string
+  venue?: string
 }
