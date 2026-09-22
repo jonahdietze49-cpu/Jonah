@@ -1,5 +1,19 @@
 [
   {
+    "id": "2026-09-20T12:00-letztes-spiel",
+    "date": "2026-09-20T12:00:00.000Z",
+    "opponent": "Letztes Spiel",
+    "home": false,
+    "competition": "Verbandsliga Mitte"
+  },
+  {
+    "id": "2026-09-22T12:00-nächstes-spiel",
+    "date": "2026-09-22T12:00:00.000Z",
+    "opponent": "Nächstes Spiel",
+    "home": false,
+    "competition": "Verbandsliga Mitte"
+  },
+  {
     "id": "2024-10-24T20:00-|-pokalspiel-herren-sv-09-hofheim",
     "date": "2024-10-24T20:00:00.000Z",
     "opponent": "| Pokalspiel Herren SV 09 Hofheim",
