@@ -17,9 +17,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Klar',
-        short_name: 'Klar',
-        description: 'Dein persönliches Cockpit für Alltag, Termine und Lernen.',
+        name: 'Luma',
+        short_name: 'Luma',
+        description: 'Dein Licht im Alltag: Termine, Wecker, Lernen und Erinnerungen an einem Ort.',
         theme_color: '#0f172a',
         background_color: '#0f172a',
         display: 'standalone',

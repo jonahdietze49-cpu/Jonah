@@ -5,7 +5,7 @@ import { useSettings } from './useSettings'
 
 /**
  * Polls due reminders and upcoming events while the app is open and fires
- * browser notifications. Web Notifications only work while Klar is
+ * browser notifications. Web Notifications only work while Luma is
  * running (a tab, or – on iOS 16.4+ / macOS – as an installed home-screen
  * app); there is no server, so nothing fires while it's fully closed.
  */

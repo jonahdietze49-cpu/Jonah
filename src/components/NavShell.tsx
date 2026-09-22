@@ -40,12 +40,12 @@ export function NavShell({ children }: { children: ReactNode }) {
       <aside className="hidden md:flex md:w-64 md:flex-col md:border-r border-[var(--border)] p-5 gap-1 safe-top">
         <div className="flex items-center gap-2 px-2 mb-6">
           <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] flex items-center justify-center text-white font-bold">
-            K
+            L
           </div>
           <div>
-            <div className="font-semibold leading-tight">Klar</div>
+            <div className="font-semibold leading-tight">Luma</div>
             <div className="text-xs text-[var(--text-muted)]">
-              Dein Alltags-Cockpit
+              Dein Licht im Alltag
             </div>
           </div>
         </div>
@@ -71,9 +71,9 @@ export function NavShell({ children }: { children: ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0">
         <header className="md:hidden flex items-center gap-2 px-4 py-3 border-b border-[var(--border)] safe-top">
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] flex items-center justify-center text-white font-bold text-sm">
-            K
+            L
           </div>
-          <div className="font-semibold">Klar</div>
+          <div className="font-semibold">Luma</div>
         </header>
 
         <main className="flex-1 overflow-y-auto pb-24 md:pb-8">

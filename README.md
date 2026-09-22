@@ -1,8 +1,8 @@
-# Klar
+# Luma
 
-Dein persönliches Cockpit für Alltag, Termine und Lernen – als installierbare
-Web-App (PWA), die auf iPad, iPhone und MacBook über den Browser läuft und
-vom Homescreen aus gestartet werden kann.
+Dein Licht im Alltag – als installierbare Web-App (PWA), die auf iPad,
+iPhone und MacBook über den Browser läuft und vom Homescreen aus gestartet
+werden kann.
 
 ## Funktionen
 
@@ -16,6 +16,8 @@ vom Homescreen aus gestartet werden kann.
   Lernfortschritt (SM-2-artiges Scheduling).
 - **Erinnerungen** – Aufgabenliste mit Fälligkeit, Priorität und
   Browser-Benachrichtigungen.
+- **Assistent** – Chat-Button unten links, beantwortet Fragen zur Bedienung
+  von Luma (Sprachbefehle, Wecker, Lernen, Installation, Daten …).
 - **Einstellungen** – Benachrichtigungen aktivieren, Anleitung zum
   Homescreen-Installieren, Backup/Export der Daten.
 
@@ -50,9 +52,14 @@ npm run preview
   gesprochenem Text. Unterstützt in Safari (iOS/iPadOS/macOS) und Chrome;
   benötigt Mikrofonzugriff.
 - **Benachrichtigungen & Wecker:** über die Web Notifications API und Web
-  Audio (Signalton). Sie funktionieren, solange Klar geöffnet ist (Tab oder
+  Audio (Signalton). Sie funktionieren, solange Luma geöffnet ist (Tab oder
   installierte App) – ein Wecker klingelt also nicht, wenn die App komplett
   geschlossen ist. Auf iOS/iPadOS sind Web-Benachrichtigungen für
   installierte PWAs ab iOS/iPadOS 16.4 verfügbar.
+- **Assistent:** ein lokaler, regelbasierter Hilfe-Assistent (kein externes
+  LLM/keine Internetverbindung nötig) – erkennt Stichwörter in der Frage und
+  gibt passende Bedienhinweise. Für einen "echten" KI-Chat (z. B. Claude)
+  wäre ein eigenes Backend mit API-Key nötig, da GitHub Pages nur statische
+  Dateien ausliefert.
 - **Offline-fähig:** Service Worker cached die App für den Offline-Zugriff
   (`vite-plugin-pwa`).

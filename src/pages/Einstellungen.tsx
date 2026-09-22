@@ -37,7 +37,7 @@ export default function Einstellungen() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `klar-backup-${new Date().toISOString().slice(0, 10)}.json`
+    a.download = `luma-backup-${new Date().toISOString().slice(0, 10)}.json`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -59,7 +59,7 @@ export default function Einstellungen() {
   }
 
   const handleReset = () => {
-    if (!confirm('Wirklich alle Daten in Klar löschen? Das kann nicht rückgängig gemacht werden.'))
+    if (!confirm('Wirklich alle Daten in Luma löschen? Das kann nicht rückgängig gemacht werden.'))
       return
     Object.keys(localStorage)
       .filter((k) => k.startsWith('klarblick:'))
@@ -69,7 +69,7 @@ export default function Einstellungen() {
 
   return (
     <div className="space-y-6">
-      <SectionTitle title="Einstellungen" subtitle="Klar nach deinen Wünschen" />
+      <SectionTitle title="Einstellungen" subtitle="Luma nach deinen Wünschen" />
 
       <Card className="p-4 space-y-3">
         <h2 className="font-semibold text-base m-0">Profil</h2>
@@ -89,7 +89,7 @@ export default function Einstellungen() {
           <h2 className="font-semibold text-base m-0">Benachrichtigungen</h2>
         </div>
         <p className="text-sm text-[var(--text-muted)]">
-          Klar erinnert dich an fällige Aufgaben und anstehende Termine,
+          Luma erinnert dich an fällige Aufgaben und anstehende Termine,
           solange die App geöffnet ist – als Tab oder als installierte App auf
           dem Homescreen.
         </p>
@@ -131,7 +131,7 @@ export default function Einstellungen() {
           Zum Homescreen hinzufügen
         </h2>
         <p className="text-sm text-[var(--text-muted)]">
-          Klar läuft als installierbare Web-App (PWA) – ein Icon auf
+          Luma läuft als installierbare Web-App (PWA) – ein Icon auf
           deinem Homescreen, Vollbild, auch offline nutzbar.
         </p>
         <div className="grid sm:grid-cols-3 gap-3 text-sm">

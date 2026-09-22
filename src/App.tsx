@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
+import { AssistantWidget } from './components/AssistantWidget'
 import { NavShell } from './components/NavShell'
 import { RingingOverlay } from './components/RingingOverlay'
 import { useAlarmScheduler } from './hooks/useAlarmScheduler'
@@ -32,6 +33,7 @@ function AppRoutes() {
         <Route path="/erinnerungen" element={<Erinnerungen />} />
         <Route path="/einstellungen" element={<Einstellungen />} />
       </Routes>
+      <AssistantWidget />
       <RingingOverlay />
     </NavShell>
   )
