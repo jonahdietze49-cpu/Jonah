@@ -6,27 +6,26 @@
 // nach public/data/fussball-spielplan.json, die App liest die Datei und
 // bietet neue Spiele zur Übernahme in den Kalender an.
 //
-// Erkenntnis aus echten Testläufen: Links zu Spiel-Detailseiten haben die
-// Form https://www.fussball.de/spiel/<heim-slug>-<auswaerts-slug>/-/spiel/<id>
-// – daraus lassen sich Gegner und Heim/Auswärts viel zuverlässiger ableiten
-// als aus umgebendem Fließtext (der auch Navigations-/Widget-Rauschen wie
-// "Zum Spiel"-Linktexte oder falsche Jahre aus anderen Seitenbereichen
-// enthält). Das Kickoff-Datum kommt weiterhin aus dem Text der jeweiligen
-// Tabellenzeile, per chrono-node erkannt.
+// Wichtige Erkenntnis aus echten Testläufen: Die Team-Profilseite
+// (/mannschaft/...) zeigt NUR ein "letzte/nächste Spiele"-Fenster
+// (~10-12 Einträge über mehrere Saisons/Wettbewerbe gemischt), nicht den
+// vollen Saison-Spielplan. Die komplette Liga-Spielplanseite
+// (/spielplan/.../-/staffel/...) listet dagegen ALLE Spiele ALLER
+// Mannschaften der Staffel – daraus filtern wir per URL-Slug nur die
+// Spiele mit TuS Hornau heraus. Spiel-Detail-Links haben die Form
+// https://www.fussball.de/spiel/<heim-slug>-<auswaerts-slug>/-/spiel/<id>
+// – daraus lassen sich Gegner und Heim/Auswärts zuverlässig ableiten, statt
+// sie aus umgebendem Fließtext zu raten. Das Kickoff-Datum kommt aus dem
+// Text der jeweiligen Tabellenzeile, per chrono-node erkannt.
 
 import { mkdir, writeFile } from 'node:fs/promises'
 import * as chrono from 'chrono-node'
 import * as cheerio from 'cheerio'
 
-const TEAM_URL =
-  'https://www.fussball.de/mannschaft/tus-hornau-tus-hornau-hessen/-/saison/2627/team-id/011MIE16DC000000VTVG0001VTR8C1K7'
+const LEAGUE_SPIELPLAN_URL =
+  'https://www.fussball.de/spielplan/vl-grmitte-hessen-verbandsliga-herren-saison2627-hessen/-/staffel/0318I3K77C00000BVS5489BUVV628VP4-G'
 const OUTPUT_PATH = 'public/data/fussball-spielplan.json'
 const OWN_SLUG = 'tus-hornau'
-// Container-Klassen, die (laut Diagnose-Lauf) die eigentliche Saison-
-// Spielplantabelle enthalten – nicht die kleine "Letztes/Nächstes Spiel"-
-// Widget-Box (class="match-wrapper"), die nur 2 Einträge hat und keine
-// verlässliche Datumsangabe in der Zeile selbst liefert.
-const TABLE_CONTAINER_SELECTOR = '.club-matchplan-table, .fixtures-matches-table'
 const LEADING_WEEKDAY = /^(mo|di|mi|do|fr|sa|so)\.?\s*/i
 
 async function fetchHtml(url) {
@@ -95,50 +94,24 @@ function matchInfoFromHref(href) {
 
 function logDiagnostics($) {
   const matchLinks = $('a[href*="/spiel/"]')
-  console.log(`\n[Diagnose] ${matchLinks.length} Link(s) mit "/spiel/" im href gefunden.`)
-  const containers = $(TABLE_CONTAINER_SELECTOR)
-  console.log(`[Diagnose] ${containers.length} Container mit "${TABLE_CONTAINER_SELECTOR}" gefunden.`)
-
-  // Zeigt, wie viele Links INNERHALB vs. AUSSERHALB der bekannten Container
-  // liegen – hilft zu verstehen, ob der volle Saison-Spielplan überhaupt auf
-  // dieser Seite steht oder ob nur ein "letzte/nächste Spiele"-Widget erfasst wird.
-  const containerEls = containers.toArray()
-  let inside = 0
-  let outside = 0
-  const outsideParentClasses = new Map()
-  matchLinks.each((_, a) => {
-    const isInside = containerEls.some((c) => $.contains(c, a) || c === a)
-    if (isInside) {
-      inside += 1
-    } else {
-      outside += 1
-      let el = a.parent
-      for (let depth = 0; depth < 4 && el; depth += 1, el = el.parent) {
-        const cls = $(el).attr && $(el).attr('class')
-        if (cls) {
-          outsideParentClasses.set(cls, (outsideParentClasses.get(cls) || 0) + 1)
-        }
-      }
-    }
-  })
-  console.log(`[Diagnose] Spiel-Links innerhalb bekannter Container: ${inside}, außerhalb: ${outside}`)
-  if (outside > 0) {
-    const sorted = [...outsideParentClasses.entries()].sort((a, b) => b[1] - a[1])
-    console.log('[Diagnose] Häufigste class-Namen im Umfeld der "außerhalb"-Links:')
-    for (const [cls, count] of sorted.slice(0, 15)) {
-      console.log(`  ${cls}: ${count}x`)
-    }
-  }
+  const uniqueHrefs = new Set()
+  matchLinks.each((_, a) => uniqueHrefs.add($(a).attr('href')))
+  console.log(
+    `\n[Diagnose] ${matchLinks.length} Link(s) mit "/spiel/" im href gefunden (${uniqueHrefs.size} eindeutige Ziel-URLs).`,
+  )
+  const ownMatches = [...uniqueHrefs].filter((href) => matchInfoFromHref(href))
+  console.log(
+    `[Diagnose] Davon ${ownMatches.length} mit "${OWN_SLUG}" auf einer Seite (eigene Spiele).`,
+  )
 }
 
 function extractMatches(html) {
   const $ = cheerio.load(html)
   logDiagnostics($)
 
-  // Ganze Seite durchsuchen statt nur die bekannten Widget-Container – der
-  // volle Saison-Spielplan kann in weiteren, noch unbekannten Abschnitten
-  // der Seite stehen. Die URL-Slug-Ableitung (matchInfoFromHref) bleibt das
-  // präzise Signal, das Rauschen fernhält, nicht der Container.
+  // Diese Seite listet ALLE Spiele ALLER Mannschaften der Staffel – die
+  // URL-Slug-Ableitung (matchInfoFromHref) filtert automatisch nur die
+  // Spiele heraus, an denen die eigene Mannschaft beteiligt ist.
   const seenIds = new Set()
   const found = []
 
@@ -165,12 +138,12 @@ function extractMatches(html) {
     })
   })
 
-  console.log(`[Spiel-Links gesamte Seite] ${found.length} Spiel(e) erkannt.`)
+  console.log(`[Spiel-Links, eigene Mannschaft] ${found.length} Spiel(e) erkannt.`)
   return found
 }
 
 async function main() {
-  const html = await fetchHtml(TEAM_URL)
+  const html = await fetchHtml(LEAGUE_SPIELPLAN_URL)
   if (!html) {
     console.warn('Seite nicht erreichbar – Datei bleibt unverändert.')
     return
