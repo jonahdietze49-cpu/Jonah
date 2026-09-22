@@ -121,40 +121,60 @@ function dedupe(matches) {
   })
 }
 
+/** Diagnose: Links zu Spiel-Detailseiten sind ein sehr zuverlässiges Signal
+ * für echte Spielplan-Zeilen (im Gegensatz zu Navigation/Widgets). */
+function logMatchLinkDiagnostics($) {
+  const matchLinks = $('a[href*="/spiel/"], a[href*="spiel-id"]')
+  console.log(`\n[Diagnose] ${matchLinks.length} Link(s) mit "/spiel/" bzw. "spiel-id" im href gefunden.`)
+  matchLinks.slice(0, 5).each((_, el) => {
+    console.log('  href:', $(el).attr('href'))
+  })
+
+  const classCounts = new Map()
+  $('[class]').each((_, el) => {
+    const cls = $(el).attr('class') || ''
+    for (const token of cls.split(/\s+/)) {
+      if (/spiel|match|termin|fixture/i.test(token)) {
+        classCounts.set(token, (classCounts.get(token) || 0) + 1)
+      }
+    }
+  })
+  const sorted = [...classCounts.entries()].sort((a, b) => b[1] - a[1])
+  console.log(`[Diagnose] Auffällige class-Namen (spiel/match/termin/fixture):`)
+  for (const [cls, count] of sorted.slice(0, 20)) {
+    console.log(`  ${cls}: ${count}x`)
+  }
+}
+
 function extractMatches(html) {
   const $ = cheerio.load(html)
+  logMatchLinkDiagnostics($)
 
-  // Strategie A: typische Zeilen-Elemente (Tabellenzeilen, Listeneinträge,
-  // Elemente mit "match"/"spiel" im class-Namen) einzeln als Zeile lesen.
-  const rowSelectors = [
-    'tr',
-    'li',
-    '[class*="match" i]',
-    '[class*="spiel" i]',
-  ]
+  // Strategie A (bevorzugt): Zeilen, die einen Link zu einer Spiel-
+  // Detailseite enthalten – deutlich präziseres Signal als generische
+  // Tabellen-/Listen-Selektoren, die auch Navigation & Widgets treffen.
+  const linkRows = new Set()
+  $('a[href*="/spiel/"], a[href*="spiel-id"]').each((_, a) => {
+    const row = $(a).closest('tr, li').get(0) ?? $(a).parent().get(0)
+    if (row) linkRows.add(row)
+  })
+  const linkRowLines = [...linkRows].map((el) => rowText($, el)).filter(Boolean)
+  const fromLinkRows = extractFromLines(linkRowLines, 'Spiel-Link-Zeilen')
+  if (fromLinkRows.length > 0) return dedupe(fromLinkRows)
+
+  // Strategie B (Fallback, unpräziser): generische Zeilen-Elemente.
+  const rowSelectors = ['tr', 'li', '[class*="match" i]', '[class*="spiel" i]']
   const rowEls = new Set()
   for (const sel of rowSelectors) {
     $(sel).each((_, el) => rowEls.add(el))
   }
-  // Container, die selbst wieder ein anderes Kandidaten-Element enthalten
-  // (z.B. eine <table class="spielplan"> um mehrere <tr>), rausfiltern –
-  // sonst landet der ganze Tabelleninhalt als eine "Zeile".
   const leafRowEls = [...rowEls].filter(
     (el) => !rowSelectors.some((sel) => $(el).find(sel).length > 0),
   )
   const rowLines = leafRowEls.map((el) => rowText($, el)).filter(Boolean)
-  const fromRows = extractFromLines(rowLines, 'Zeilen-Elemente')
+  const fromRows = extractFromLines(rowLines, 'Zeilen-Elemente (Fallback)')
 
-  // Strategie B: kompletter sichtbarer Fließtext, zeilenweise (Fallback).
-  const bodyLines = $('body')
-    .text()
-    .split('\n')
-    .map((l) => l.trim())
-    .filter(Boolean)
-  const fromBody = extractFromLines(bodyLines, 'Fließtext')
-
-  const combined = dedupe([...fromRows, ...fromBody])
-  return combined
+  return dedupe(fromRows)
 }
 
 async function main() {
