@@ -98,24 +98,51 @@ function logDiagnostics($) {
   console.log(`\n[Diagnose] ${matchLinks.length} Link(s) mit "/spiel/" im href gefunden.`)
   const containers = $(TABLE_CONTAINER_SELECTOR)
   console.log(`[Diagnose] ${containers.length} Container mit "${TABLE_CONTAINER_SELECTOR}" gefunden.`)
+
+  // Zeigt, wie viele Links INNERHALB vs. AUSSERHALB der bekannten Container
+  // liegen – hilft zu verstehen, ob der volle Saison-Spielplan überhaupt auf
+  // dieser Seite steht oder ob nur ein "letzte/nächste Spiele"-Widget erfasst wird.
+  const containerEls = containers.toArray()
+  let inside = 0
+  let outside = 0
+  const outsideParentClasses = new Map()
+  matchLinks.each((_, a) => {
+    const isInside = containerEls.some((c) => $.contains(c, a) || c === a)
+    if (isInside) {
+      inside += 1
+    } else {
+      outside += 1
+      let el = a.parent
+      for (let depth = 0; depth < 4 && el; depth += 1, el = el.parent) {
+        const cls = $(el).attr && $(el).attr('class')
+        if (cls) {
+          outsideParentClasses.set(cls, (outsideParentClasses.get(cls) || 0) + 1)
+        }
+      }
+    }
+  })
+  console.log(`[Diagnose] Spiel-Links innerhalb bekannter Container: ${inside}, außerhalb: ${outside}`)
+  if (outside > 0) {
+    const sorted = [...outsideParentClasses.entries()].sort((a, b) => b[1] - a[1])
+    console.log('[Diagnose] Häufigste class-Namen im Umfeld der "außerhalb"-Links:')
+    for (const [cls, count] of sorted.slice(0, 15)) {
+      console.log(`  ${cls}: ${count}x`)
+    }
+  }
 }
 
 function extractMatches(html) {
   const $ = cheerio.load(html)
   logDiagnostics($)
 
-  const containers = $(TABLE_CONTAINER_SELECTOR)
-  const scope = containers.length > 0 ? containers : $('body')
-  if (containers.length === 0) {
-    console.warn(
-      '[Warnung] Kein Spielplan-Tabellen-Container gefunden – durchsuche stattdessen die ganze Seite (mehr Rauschen möglich).',
-    )
-  }
-
+  // Ganze Seite durchsuchen statt nur die bekannten Widget-Container – der
+  // volle Saison-Spielplan kann in weiteren, noch unbekannten Abschnitten
+  // der Seite stehen. Die URL-Slug-Ableitung (matchInfoFromHref) bleibt das
+  // präzise Signal, das Rauschen fernhält, nicht der Container.
   const seenIds = new Set()
   const found = []
 
-  scope.find('a[href*="/spiel/"]').each((_, a) => {
+  $('a[href*="/spiel/"]').each((_, a) => {
     const href = $(a).attr('href') || ''
     const info = matchInfoFromHref(href)
     if (!info || seenIds.has(info.matchId)) return
@@ -138,7 +165,7 @@ function extractMatches(html) {
     })
   })
 
-  console.log(`[Spiel-Links in Tabellen-Container] ${found.length} Spiel(e) erkannt.`)
+  console.log(`[Spiel-Links gesamte Seite] ${found.length} Spiel(e) erkannt.`)
   return found
 }
 
