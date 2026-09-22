@@ -47,6 +47,20 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // OCR-Assets (Worker, WASM-Engine, Sprachdaten) sind mehrere MB groß
+        // und werden nur beim tatsächlichen Scannen eines Zettels geladen –
+        // nicht beim App-Start vorab cachen.
+        globIgnores: ['tesseract/**'],
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.includes('/tesseract/'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'tesseract-ocr-assets',
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 180 },
+            },
+          },
+        ],
       },
     }),
   ],

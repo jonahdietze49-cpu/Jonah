@@ -7,7 +7,7 @@ export interface CalendarEvent {
   end?: string
   location?: string
   notes?: string
-  createdVia: 'manual' | 'voice' | 'fussball'
+  createdVia: 'manual' | 'voice' | 'fussball' | 'scan'
   createdAt: string
 }
 

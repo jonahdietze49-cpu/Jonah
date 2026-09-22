@@ -1,9 +1,11 @@
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { DocumentScanCard } from '../components/DocumentScanCard'
 import { FussballCard } from '../components/FussballCard'
 import { VoiceQuickAdd } from '../components/VoiceQuickAdd'
 import { Button, Card, EmptyState, Input, SectionTitle } from '../components/ui'
 import { useEvents } from '../hooks/useEvents'
+import { toLocalInputValue } from '../lib/dateFormat'
 import type { CalendarEvent } from '../lib/types'
 
 function startOfMonth(d: Date) {
@@ -15,10 +17,6 @@ function isSameDay(a: Date, b: Date) {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate()
   )
-}
-function toLocalInputValue(date: Date) {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 
 const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
@@ -217,6 +215,8 @@ export default function Kalender() {
           </ul>
         )}
       </Card>
+
+      <DocumentScanCard />
 
       <FussballCard />
     </div>

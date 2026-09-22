@@ -1,12 +1,8 @@
 import { AlertCircle, Check, Mic, MicOff, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useVoiceCommand } from '../hooks/useVoiceCommand'
+import { toLocalInputValue } from '../lib/dateFormat'
 import { Button, Card, Input } from './ui'
-
-function toLocalInputValue(date: Date) {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
-}
 
 export function VoiceQuickAdd({
   onCreate,
