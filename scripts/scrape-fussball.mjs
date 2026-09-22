@@ -185,11 +185,28 @@ function extractMatches(html) {
       }
     }
 
+    // Nur plausible Saison-Termine akzeptieren (Verbandsliga läuft grob
+    // Aug-Juni) – schützt vor Fehltreffern der Rückwärtssuche, die auf
+    // unzusammenhängenden Text stoßen könnte.
+    const now = new Date()
+    const minDate = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
+    const maxDate = new Date(now.getTime() + 400 * 24 * 60 * 60 * 1000)
+    if (date && (date < minDate || date > maxDate)) {
+      date = null
+    }
+
     if (!date) {
       undated += 1
-      if (diagnosticsLogged < 6) {
+      if (diagnosticsLogged < 2 && row) {
         console.log(
           `[Diagnose] Kein Datum für ${info.opponent} – Zeilentext: "${rowLine.slice(0, 200)}"`,
+        )
+        console.log(`[Diagnose] Zeilen-HTML: ${$.html(row).slice(0, 800)}`)
+        const ancestorHtml = $(row).parent().parent().length
+          ? $.html($(row).parent().parent())
+          : ''
+        console.log(
+          `[Diagnose] Umgebendes HTML (2 Ebenen höher, gekürzt): ${ancestorHtml.slice(0, 1500)}`,
         )
         diagnosticsLogged += 1
       }
