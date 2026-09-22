@@ -62,6 +62,26 @@ export interface AppSettings {
   reminderLeadMinutes: number
   /** Eigene Google OAuth Client-ID (aus der Google Cloud Console) */
   googleClientId: string
+  /** Eigene Microsoft-Anwendungs-ID (aus dem Azure Portal / App registrations) */
+  microsoftClientId: string
+}
+
+/** Provider-übergreifendes Format für Mail/Kalender-Widgets */
+export interface MailMessage {
+  id: string
+  subject: string
+  from: string
+  snippet: string
+  provider: 'google' | 'microsoft'
+}
+
+export interface MailCalendarEvent {
+  id: string
+  summary: string
+  start: string
+  allDay: boolean
+  htmlLink: string
+  provider: 'google' | 'microsoft'
 }
 
 export interface FussballMatch {

@@ -6,6 +6,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   notificationsEnabled: false,
   reminderLeadMinutes: 10,
   googleClientId: '',
+  microsoftClientId: '',
 }
 
 export function useSettings() {

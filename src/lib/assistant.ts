@@ -20,6 +20,24 @@ const TOPICS: Topic[] = [
       'Im Kalender gibt es den Button „Sprachbefehl". Tippen, sprechen, fertig – z. B. „Termin morgen um 15 Uhr Zahnarzt" oder „Erinnere mich am Montag um 9 Uhr an das Meeting mit Anna". Luma erkennt Datum und Uhrzeit automatisch und du kannst den Vorschlag vor dem Speichern noch anpassen. Braucht Mikrofonzugriff und funktioniert am besten in Safari oder Chrome.',
   },
   {
+    id: 'mailkonto',
+    keywords: [
+      'google',
+      'gmail',
+      'microsoft',
+      'outlook',
+      'mail konto',
+      'mail-konto',
+      'e-mail konto',
+      'konto verbinden',
+      'postfach',
+      'icloud',
+      'imap',
+    ],
+    reply:
+      'In den Einstellungen unter „Verbundene Konten" kannst du dein Google- oder Microsoft/Outlook-Konto verbinden – Luma zeigt dann ungelesene Mails und anstehende Termine auf der Übersicht an. Dafür brauchst du eine eigene, kostenlose Zugangs-ID (Anleitung direkt dort). iCloud/Apple Mail und klassische IMAP-Postfächer bieten keine passende Schnittstelle für Websites und lassen sich deshalb nicht anbinden.',
+  },
+  {
     id: 'kalender',
     keywords: ['kalender', 'termin', 'event', 'meeting'],
     reply:

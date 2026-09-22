@@ -1,33 +1,50 @@
 import { AlertCircle, CalendarClock, Mail, RefreshCw } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useGoogleAuth } from '../contexts/GoogleAuthContext'
+import { useMicrosoftAuth } from '../contexts/MicrosoftAuthContext'
+import { fetchUnreadGmail, fetchUpcomingCalendarEvents } from '../lib/googleApi'
 import {
-  fetchUnreadGmail,
-  fetchUpcomingCalendarEvents,
-  type GCalEvent,
-  type GmailMessage,
-} from '../lib/googleApi'
+  fetchUnreadOutlookMail,
+  fetchUpcomingOutlookEvents,
+} from '../lib/microsoftApi'
+import type { MailCalendarEvent, MailMessage } from '../lib/types'
 import { Button, Card } from './ui'
 
-export function GoogleCard() {
-  const { connected, connecting, error, accessToken, connect, disconnect } =
-    useGoogleAuth()
-  const [mails, setMails] = useState<GmailMessage[]>([])
-  const [events, setEvents] = useState<GCalEvent[]>([])
+const PROVIDER_LABEL = { google: 'Gmail', microsoft: 'Outlook' } as const
+
+export function MailAccountsCard() {
+  const google = useGoogleAuth()
+  const microsoft = useMicrosoftAuth()
+  const [mails, setMails] = useState<MailMessage[]>([])
+  const [events, setEvents] = useState<MailCalendarEvent[]>([])
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
 
+  const anyConnected = google.connected || microsoft.connected
+
   const load = async () => {
-    if (!accessToken) return
     setLoading(true)
     setLoadError(null)
     try {
-      const [m, e] = await Promise.all([
-        fetchUnreadGmail(accessToken, 5),
-        fetchUpcomingCalendarEvents(accessToken, 5),
+      const mailJobs: Promise<MailMessage[]>[] = []
+      const eventJobs: Promise<MailCalendarEvent[]>[] = []
+      if (google.connected && google.accessToken) {
+        mailJobs.push(fetchUnreadGmail(google.accessToken, 5))
+        eventJobs.push(fetchUpcomingCalendarEvents(google.accessToken, 5))
+      }
+      if (microsoft.connected && microsoft.accessToken) {
+        mailJobs.push(fetchUnreadOutlookMail(microsoft.accessToken, 5))
+        eventJobs.push(fetchUpcomingOutlookEvents(microsoft.accessToken, 5))
+      }
+      const [mailResults, eventResults] = await Promise.all([
+        Promise.all(mailJobs),
+        Promise.all(eventJobs),
       ])
-      setMails(m)
-      setEvents(e)
+      setMails(mailResults.flat())
+      setEvents(
+        eventResults.flat().sort((a, b) => a.start.localeCompare(b.start)),
+      )
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : 'Laden fehlgeschlagen.')
     } finally {
@@ -36,33 +53,24 @@ export function GoogleCard() {
   }
 
   useEffect(() => {
-    if (connected) load()
+    if (anyConnected) load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connected])
+  }, [google.connected, microsoft.connected])
 
-  if (!connected) {
+  if (!anyConnected) {
     return (
       <Card className="p-4 text-left">
         <div className="flex items-center gap-2 mb-2">
           <Mail size={18} className="text-[var(--accent)]" />
-          <h2 className="font-semibold text-base m-0">Google-Konto</h2>
+          <h2 className="font-semibold text-base m-0">Mail &amp; Kalender</h2>
         </div>
         <p className="text-sm text-[var(--text-muted)] mb-3">
-          Verbinde dein Google-Konto, um ungelesene Mails und anstehende
-          Kalendertermine direkt hier zu sehen.
+          Verbinde dein Google- oder Microsoft-Konto, um ungelesene Mails und
+          anstehende Kalendertermine direkt hier zu sehen.
         </p>
-        {error && (
-          <div className="flex gap-2 text-sm text-[var(--danger)] bg-[var(--danger)]/10 rounded-xl p-3 mb-3">
-            <AlertCircle size={18} className="shrink-0" />
-            {error}
-          </div>
-        )}
-        <Button variant="primary" onClick={connect} disabled={connecting}>
-          {connecting ? 'Verbinde…' : 'Mit Google verbinden'}
-        </Button>
-        <p className="text-xs text-[var(--text-muted)] mt-3">
-          Setup (einmalig) in den Einstellungen unter „Google-Konto".
-        </p>
+        <Link to="/einstellungen">
+          <Button variant="primary">Konto verbinden</Button>
+        </Link>
       </Card>
     )
   }
@@ -72,24 +80,16 @@ export function GoogleCard() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Mail size={18} className="text-[var(--accent)]" />
-          <h2 className="font-semibold text-base m-0">Google-Konto</h2>
+          <h2 className="font-semibold text-base m-0">Mail &amp; Kalender</h2>
         </div>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={load}
-            disabled={loading}
-            className="p-1.5 rounded-lg text-[var(--text-muted)] hover:bg-[var(--surface-2)] disabled:opacity-50"
-            aria-label="Aktualisieren"
-          >
-            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-          </button>
-          <button
-            onClick={disconnect}
-            className="text-xs font-medium text-[var(--text-muted)] hover:text-[var(--danger)] px-2"
-          >
-            Trennen
-          </button>
-        </div>
+        <button
+          onClick={load}
+          disabled={loading}
+          className="p-1.5 rounded-lg text-[var(--text-muted)] hover:bg-[var(--surface-2)] disabled:opacity-50"
+          aria-label="Aktualisieren"
+        >
+          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+        </button>
       </div>
 
       {loadError && (
@@ -112,10 +112,15 @@ export function GoogleCard() {
             <ul className="space-y-1.5">
               {mails.map((m) => (
                 <li
-                  key={m.id}
+                  key={`${m.provider}-${m.id}`}
                   className="rounded-xl bg-[var(--surface-2)] px-3 py-2"
                 >
-                  <p className="text-sm font-medium truncate">{m.subject}</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-medium truncate">{m.subject}</p>
+                    <span className="text-[10px] uppercase tracking-wide text-[var(--text-muted)] shrink-0">
+                      {PROVIDER_LABEL[m.provider]}
+                    </span>
+                  </div>
                   <p className="text-xs text-[var(--text-muted)] truncate">
                     {m.from}
                   </p>
@@ -137,7 +142,7 @@ export function GoogleCard() {
             <ul className="space-y-1.5">
               {events.map((e) => (
                 <li
-                  key={e.id}
+                  key={`${e.provider}-${e.id}`}
                   className="flex items-center gap-3 rounded-xl bg-[var(--surface-2)] px-3 py-2"
                 >
                   <span className="text-xs font-semibold text-[var(--accent)] shrink-0">
@@ -150,7 +155,10 @@ export function GoogleCard() {
                           minute: '2-digit',
                         })}
                   </span>
-                  <span className="text-sm truncate">{e.summary}</span>
+                  <span className="text-sm truncate flex-1">{e.summary}</span>
+                  <span className="text-[10px] uppercase tracking-wide text-[var(--text-muted)] shrink-0">
+                    {PROVIDER_LABEL[e.provider]}
+                  </span>
                 </li>
               ))}
             </ul>

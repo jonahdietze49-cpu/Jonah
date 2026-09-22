@@ -1,5 +1,4 @@
 import {
-  AlertCircle,
   Bell,
   Download,
   ExternalLink,
@@ -11,14 +10,17 @@ import {
   Upload,
 } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { ProviderConnectCard } from '../components/ProviderConnectCard'
 import { Button, Card, Input, SectionTitle } from '../components/ui'
 import { useGoogleAuth } from '../contexts/GoogleAuthContext'
+import { useMicrosoftAuth } from '../contexts/MicrosoftAuthContext'
 import { useSettings } from '../hooks/useSettings'
 import { exportAllData, importAllData } from '../lib/storage'
 
 export default function Einstellungen() {
   const { settings, updateSettings } = useSettings()
   const googleAuth = useGoogleAuth()
+  const microsoftAuth = useMicrosoftAuth()
   const [notifStatus, setNotifStatus] = useState<NotificationPermission | 'unsupported'>(
     typeof Notification === 'undefined' ? 'unsupported' : Notification.permission,
   )
@@ -88,92 +90,123 @@ export default function Einstellungen() {
         />
       </Card>
 
-      <Card className="p-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <Mail size={18} className="text-[var(--accent)]" />
-          <h2 className="font-semibold text-base m-0">Google-Konto</h2>
-        </div>
-        <p className="text-sm text-[var(--text-muted)]">
-          Verbindet Gmail (ungelesene Mails) und Google Kalender (anstehende
-          Termine) mit deiner Übersicht. Läuft komplett im Browser, ohne
-          eigenen Server – dafür braucht Luma eine eigene, kostenlose
-          Google-Client-ID, die nur du erstellen kannst.
+      <div className="space-y-3">
+        <h2 className="font-semibold text-base px-1">Verbundene Konten</h2>
+        <p className="text-sm text-[var(--text-muted)] px-1">
+          Zeigt ungelesene Mails und anstehende Kalendertermine in deiner
+          Übersicht. Läuft komplett im Browser, ohne eigenen Server – dafür
+          braucht Luma eine eigene, kostenlose Zugangs-ID je Anbieter, die nur
+          du erstellen kannst. iCloud/Apple Mail und klassische IMAP-Postfächer
+          bieten keine solche Schnittstelle für Websites an und lassen sich
+          deshalb nicht anbinden.
         </p>
 
-        <details className="text-sm">
-          <summary className="cursor-pointer font-medium text-[var(--accent)]">
-            Anleitung: Client-ID in 5 Minuten erstellen
-          </summary>
-          <ol className="list-decimal list-inside space-y-1.5 mt-2 text-[var(--text-muted)]">
-            <li>
-              <a
-                href="https://console.cloud.google.com/projectcreate"
-                target="_blank"
-                rel="noreferrer"
-                className="text-[var(--accent)] inline-flex items-center gap-1"
-              >
-                Google Cloud Console <ExternalLink size={12} />
-              </a>{' '}
-              öffnen und ein neues Projekt erstellen (z. B. „Luma").
-            </li>
-            <li>
-              Im Menü zu „APIs &amp; Dienste" → „OAuth-Zustimmungsbildschirm":
-              Nutzertyp „Extern" wählen, App-Namen und deine E-Mail eintragen.
-              Unter „Testnutzer" deine eigene Google-Adresse hinzufügen – die
-              App bleibt im Status „Testing", das reicht für die private
-              Nutzung ohne Google-Prüfung völlig aus.
-            </li>
-            <li>
-              Zu „Anmeldedaten" → „Anmeldedaten erstellen" → „OAuth-Client-ID"
-              → Anwendungstyp „Webanwendung".
-            </li>
-            <li>
-              Unter „Autorisierte JavaScript-Quellen" hinzufügen:{' '}
-              <code className="px-1 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text)]">
-                https://jonahdietze49-cpu.github.io
-              </code>
-            </li>
-            <li>Client-ID kopieren und unten einfügen.</li>
-          </ol>
-        </details>
+        <ProviderConnectCard
+          icon={<Mail size={18} className="text-[var(--accent)]" />}
+          title="Google-Konto"
+          description="Verbindet Gmail und Google Kalender."
+          instructionsSummary="Anleitung: Client-ID in 5 Minuten erstellen"
+          instructions={
+            <ol className="list-decimal list-inside space-y-1.5 text-[var(--text-muted)]">
+              <li>
+                <a
+                  href="https://console.cloud.google.com/projectcreate"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[var(--accent)] inline-flex items-center gap-1"
+                >
+                  Google Cloud Console <ExternalLink size={12} />
+                </a>{' '}
+                öffnen und ein neues Projekt erstellen (z. B. „Luma").
+              </li>
+              <li>
+                Im Menü zu „APIs &amp; Dienste" → „OAuth-Zustimmungsbildschirm":
+                Nutzertyp „Extern" wählen, App-Namen und deine E-Mail
+                eintragen. Unter „Testnutzer" deine eigene Google-Adresse
+                hinzufügen – die App bleibt im Status „Testing", das reicht
+                für die private Nutzung ohne Google-Prüfung völlig aus.
+              </li>
+              <li>
+                Zu „Anmeldedaten" → „Anmeldedaten erstellen" →
+                „OAuth-Client-ID" → Anwendungstyp „Webanwendung".
+              </li>
+              <li>
+                Unter „Autorisierte JavaScript-Quellen" hinzufügen:{' '}
+                <code className="px-1 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text)]">
+                  https://jonahdietze49-cpu.github.io
+                </code>
+              </li>
+              <li>Client-ID kopieren und unten einfügen.</li>
+            </ol>
+          }
+          clientId={settings.googleClientId}
+          onClientIdChange={(v) => updateSettings({ googleClientId: v })}
+          clientIdLabel="Google Client-ID"
+          clientIdPlaceholder="xxxxxxxxxxxx.apps.googleusercontent.com"
+          connected={googleAuth.connected}
+          connecting={googleAuth.connecting}
+          error={googleAuth.error}
+          onConnect={googleAuth.connect}
+          onDisconnect={googleAuth.disconnect}
+        />
 
-        <div>
-          <label className="text-xs font-medium text-[var(--text-muted)] block mb-1">
-            Google Client-ID
-          </label>
-          <Input
-            value={settings.googleClientId}
-            onChange={(e) => updateSettings({ googleClientId: e.target.value })}
-            placeholder="xxxxxxxxxxxx.apps.googleusercontent.com"
-          />
-        </div>
-
-        {googleAuth.error && (
-          <div className="flex gap-2 text-sm text-[var(--danger)] bg-[var(--danger)]/10 rounded-xl p-3">
-            <AlertCircle size={18} className="shrink-0" />
-            {googleAuth.error}
-          </div>
-        )}
-
-        {googleAuth.connected ? (
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-[var(--success)] font-medium">
-              Verbunden
-            </span>
-            <Button variant="secondary" onClick={googleAuth.disconnect}>
-              Trennen
-            </Button>
-          </div>
-        ) : (
-          <Button
-            variant="primary"
-            onClick={googleAuth.connect}
-            disabled={googleAuth.connecting}
-          >
-            {googleAuth.connecting ? 'Verbinde…' : 'Mit Google verbinden'}
-          </Button>
-        )}
-      </Card>
+        <ProviderConnectCard
+          icon={<Mail size={18} className="text-[var(--accent)]" />}
+          title="Microsoft-Konto"
+          description="Verbindet Outlook-Mail und Microsoft Kalender (privat oder geschäftlich)."
+          instructionsSummary="Anleitung: Anwendungs-ID in 5 Minuten erstellen"
+          instructions={
+            <ol className="list-decimal list-inside space-y-1.5 text-[var(--text-muted)]">
+              <li>
+                <a
+                  href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/CreateApplicationBlade"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[var(--accent)] inline-flex items-center gap-1"
+                >
+                  Azure Portal – App-Registrierung <ExternalLink size={12} />
+                </a>{' '}
+                öffnen (Anmeldung mit deinem Microsoft-Konto).
+              </li>
+              <li>
+                Namen eintragen (z. B. „Luma"). Bei „Unterstützte Kontotypen"
+                die Option für persönliche + geschäftliche Konten wählen.
+              </li>
+              <li>
+                Unter „Redirect URI" den Typ „Single-page application (SPA)"
+                wählen und eintragen:{' '}
+                <code className="px-1 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text)]">
+                  https://jonahdietze49-cpu.github.io/Jonah/
+                </code>
+              </li>
+              <li>Registrieren, dann die „Anwendungs-ID (Client)" kopieren.</li>
+              <li>
+                Unter „API-Berechtigungen" → „Berechtigung hinzufügen" →
+                „Microsoft Graph" → „Delegiert" die Rechte{' '}
+                <code className="px-1 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text)]">
+                  Mail.Read
+                </code>{' '}
+                und{' '}
+                <code className="px-1 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text)]">
+                  Calendars.Read
+                </code>{' '}
+                hinzufügen (für private Nutzung ohne Admin-Freigabe
+                verfügbar).
+              </li>
+              <li>Anwendungs-ID kopieren und unten einfügen.</li>
+            </ol>
+          }
+          clientId={settings.microsoftClientId}
+          onClientIdChange={(v) => updateSettings({ microsoftClientId: v })}
+          clientIdLabel="Microsoft-Anwendungs-ID"
+          clientIdPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          connected={microsoftAuth.connected}
+          connecting={microsoftAuth.connecting}
+          error={microsoftAuth.error}
+          onConnect={microsoftAuth.connect}
+          onDisconnect={microsoftAuth.disconnect}
+        />
+      </div>
 
       <Card className="p-4 space-y-3">
         <div className="flex items-center gap-2">

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { GoogleCard } from '../components/GoogleCard'
+import { MailAccountsCard } from '../components/MailAccountsCard'
 import { VoiceQuickAdd } from '../components/VoiceQuickAdd'
 import { Button, Card, EmptyState, Input, SectionTitle } from '../components/ui'
 import { useDecks } from '../hooks/useDecks'
@@ -200,7 +200,7 @@ export default function Dashboard() {
         )}
       </Card>
 
-      <GoogleCard />
+      <MailAccountsCard />
     </div>
   )
 }

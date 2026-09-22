@@ -1,17 +1,4 @@
-export interface GmailMessage {
-  id: string
-  subject: string
-  from: string
-  snippet: string
-}
-
-export interface GCalEvent {
-  id: string
-  summary: string
-  start: string
-  allDay: boolean
-  htmlLink: string
-}
+import type { MailCalendarEvent, MailMessage } from './types'
 
 async function apiErrorMessage(res: Response): Promise<string> {
   try {
@@ -25,7 +12,7 @@ async function apiErrorMessage(res: Response): Promise<string> {
 export async function fetchUnreadGmail(
   accessToken: string,
   maxResults = 6,
-): Promise<GmailMessage[]> {
+): Promise<MailMessage[]> {
   const listRes = await fetch(
     `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=${maxResults}&q=${encodeURIComponent('is:unread in:inbox')}`,
     { headers: { Authorization: `Bearer ${accessToken}` } },
@@ -35,7 +22,7 @@ export async function fetchUnreadGmail(
   const ids: string[] = (listData.messages ?? []).map((m: any) => m.id)
 
   const messages = await Promise.all(
-    ids.map(async (id): Promise<GmailMessage | null> => {
+    ids.map(async (id): Promise<MailMessage | null> => {
       const res = await fetch(
         `https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=metadata&metadataHeaders=Subject&metadataHeaders=From`,
         { headers: { Authorization: `Bearer ${accessToken}` } },
@@ -51,16 +38,17 @@ export async function fetchUnreadGmail(
         subject: get('Subject') || '(kein Betreff)',
         from: get('From').replace(/<.*>/, '').trim() || get('From'),
         snippet: data.snippet ?? '',
+        provider: 'google',
       }
     }),
   )
-  return messages.filter((m): m is GmailMessage => m !== null)
+  return messages.filter((m): m is MailMessage => m !== null)
 }
 
 export async function fetchUpcomingCalendarEvents(
   accessToken: string,
   maxResults = 6,
-): Promise<GCalEvent[]> {
+): Promise<MailCalendarEvent[]> {
   const timeMin = new Date().toISOString()
   const url =
     'https://www.googleapis.com/calendar/v3/calendars/primary/events' +
@@ -76,5 +64,6 @@ export async function fetchUpcomingCalendarEvents(
     start: item.start?.dateTime ?? item.start?.date,
     allDay: !item.start?.dateTime,
     htmlLink: item.htmlLink,
+    provider: 'google',
   }))
 }

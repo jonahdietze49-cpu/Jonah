@@ -16,6 +16,10 @@ werden kann.
   Lernfortschritt (SM-2-artiges Scheduling).
 - **Erinnerungen** – Aufgabenliste mit Fälligkeit, Priorität und
   Browser-Benachrichtigungen.
+- **Zettel scannen** – Foto von einem Zettel/Aushang hochladen, Termine
+  werden per Texterkennung (OCR, im Browser) vorgeschlagen.
+- **Verbundene Konten** – Google- oder Microsoft/Outlook-Konto verbinden,
+  zeigt ungelesene Mails und anstehende Termine im Dashboard.
 - **Assistent** – Chat-Button unten links, beantwortet Fragen zur Bedienung
   von Luma (Sprachbefehle, Wecker, Lernen, Installation, Daten …).
 - **Einstellungen** – Benachrichtigungen aktivieren, Anleitung zum
@@ -63,3 +67,13 @@ npm run preview
   Dateien ausliefert.
 - **Offline-fähig:** Service Worker cached die App für den Offline-Zugriff
   (`vite-plugin-pwa`).
+- **Zettel scannen:** Texterkennung läuft komplett im Browser (`tesseract.js`,
+  deutsches Sprachmodell). Engine, Worker und Sprachdaten werden selbst
+  gehostet (kein externes CDN) und erst bei Nutzung nachgeladen.
+- **Verbundene Konten:** clientseitiges OAuth (Google Identity Services bzw.
+  `@azure/msal-browser` für Microsoft) – kein eigener Server, jede
+  Installation braucht ihre eigene, kostenlos erstellbare Client-/
+  Anwendungs-ID (Anleitung in den Einstellungen). Zugriffstoken liegen nur im
+  `sessionStorage`, nicht dauerhaft gespeichert. iCloud/Apple Mail und
+  klassische IMAP-Postfächer bieten keine für Websites nutzbare Schnittstelle
+  und lassen sich deshalb nicht anbinden.

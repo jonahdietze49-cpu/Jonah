@@ -4,6 +4,7 @@ import { AssistantWidget } from './components/AssistantWidget'
 import { NavShell } from './components/NavShell'
 import { RingingOverlay } from './components/RingingOverlay'
 import { GoogleAuthProvider } from './contexts/GoogleAuthContext'
+import { MicrosoftAuthProvider } from './contexts/MicrosoftAuthContext'
 import { useAlarmScheduler } from './hooks/useAlarmScheduler'
 import { useNotificationScheduler } from './hooks/useNotificationScheduler'
 import { unlockAudio } from './lib/alarmSound'
@@ -44,7 +45,9 @@ function App() {
   return (
     <HashRouter>
       <GoogleAuthProvider>
-        <AppRoutes />
+        <MicrosoftAuthProvider>
+          <AppRoutes />
+        </MicrosoftAuthProvider>
       </GoogleAuthProvider>
     </HashRouter>
   )
