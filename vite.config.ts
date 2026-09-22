@@ -17,8 +17,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Klarblick',
-        short_name: 'Klarblick',
+        name: 'Klar',
+        short_name: 'Klar',
         description: 'Dein persönliches Cockpit für Alltag, Termine und Lernen.',
         theme_color: '#0f172a',
         background_color: '#0f172a',

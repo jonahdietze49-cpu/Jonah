@@ -1,4 +1,4 @@
-# Klarblick
+# Klar
 
 Dein persönliches Cockpit für Alltag, Termine und Lernen – als installierbare
 Web-App (PWA), die auf iPad, iPhone und MacBook über den Browser läuft und
@@ -10,6 +10,8 @@ vom Homescreen aus gestartet werden kann.
   Lernfortschritt auf einen Blick.
 - **Kalender** – Monatsansicht, Termine manuell oder **per Sprachbefehl**
   anlegen (z. B. „Termin morgen um 15 Uhr Zahnarzt").
+- **Wecker** – Alarme mit Uhrzeit, Bezeichnung und Wochentagen (oder einmalig),
+  klingelt mit Ton + Benachrichtigung, inkl. Schlummern.
 - **Lernen** – Karteikarten-Decks mit einfacher Wiederholung nach
   Lernfortschritt (SM-2-artiges Scheduling).
 - **Erinnerungen** – Aufgabenliste mit Fälligkeit, Priorität und
@@ -47,9 +49,10 @@ npm run preview
   und `chrono-node` (deutsches Locale) zum Erkennen von Datum/Uhrzeit aus
   gesprochenem Text. Unterstützt in Safari (iOS/iPadOS/macOS) und Chrome;
   benötigt Mikrofonzugriff.
-- **Benachrichtigungen:** über die Web Notifications API. Sie funktionieren,
-  solange Klarblick geöffnet ist (Tab oder installierte App). Auf iOS/iPadOS
-  sind Web-Benachrichtigungen für installierte PWAs ab iOS/iPadOS 16.4
-  verfügbar.
+- **Benachrichtigungen & Wecker:** über die Web Notifications API und Web
+  Audio (Signalton). Sie funktionieren, solange Klar geöffnet ist (Tab oder
+  installierte App) – ein Wecker klingelt also nicht, wenn die App komplett
+  geschlossen ist. Auf iOS/iPadOS sind Web-Benachrichtigungen für
+  installierte PWAs ab iOS/iPadOS 16.4 verfügbar.
 - **Offline-fähig:** Service Worker cached die App für den Offline-Zugriff
   (`vite-plugin-pwa`).

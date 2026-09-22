@@ -43,6 +43,19 @@ export interface Deck {
   createdAt: string
 }
 
+export interface Alarm {
+  id: string
+  /** 24h "HH:MM" */
+  time: string
+  label: string
+  /** 0=Montag..6=Sonntag; leer = einmalig (deaktiviert sich nach dem Klingeln) */
+  days: number[]
+  enabled: boolean
+  /** ISO datetime – gesetzt, während der Alarm geschlummert wird */
+  snoozedUntil?: string
+  createdAt: string
+}
+
 export interface AppSettings {
   userName: string
   notificationsEnabled: boolean
