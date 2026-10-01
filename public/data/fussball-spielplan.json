@@ -1,9 +1,16 @@
 [
   {
-    "id": "2027-09-30T06:12-tuerkischer-sv-wiesbaden",
-    "date": "2027-09-30T06:12:36.662Z",
-    "opponent": "Tuerkischer SV Wiesbaden",
+    "id": "2027-10-01T06:14-vfb-unterliederbach",
+    "date": "2027-10-01T06:14:33.586Z",
+    "opponent": "VFB Unterliederbach",
     "home": true,
+    "competition": "Verbandsliga Mitte"
+  },
+  {
+    "id": "2027-10-01T06:14-tsv-steinbach-haiger-ii",
+    "date": "2027-10-01T06:14:33.611Z",
+    "opponent": "TSV Steinbach Haiger II",
+    "home": false,
     "competition": "Verbandsliga Mitte"
   }
 ]
