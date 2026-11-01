@@ -1,15 +1,8 @@
 [
   {
-    "id": "2027-10-30T12:07-vfb-unterliederbach",
-    "date": "2027-10-30T12:07:41.942Z",
-    "opponent": "VFB Unterliederbach",
-    "home": true,
-    "competition": "Verbandsliga Mitte"
-  },
-  {
-    "id": "2027-10-30T12:07-tsv-steinbach-haiger-ii",
-    "date": "2027-10-30T12:07:41.961Z",
-    "opponent": "TSV Steinbach Haiger II",
+    "id": "2027-11-01T12:40-sc-waldgirmes",
+    "date": "2027-11-01T12:40:03.334Z",
+    "opponent": "SC Waldgirmes",
     "home": false,
     "competition": "Verbandsliga Mitte"
   }
